@@ -2,7 +2,7 @@ from auth.auth import auth_backend
 from auth.schemas import UserCreate, UserRead
 from auth.service import get_user_manager
 from db.models import User
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi_users import FastAPIUsers
 from schemas import Expense, ExpenseGet, ExpenseUpdate
 from service import add_expense, get_expenses, update_expense
@@ -41,9 +41,13 @@ async def expense_get_items(user: User = Depends(current_active_user)) -> list[E
 
 @app.post("/expenses/")
 async def expense_insert(expense: Expense, user: User = Depends(current_active_user)) -> str:
-    expense = expense.model_dump()
-    message_action = await add_expense(**expense, user_id=user.id)
-    return message_action
+    expense_data = expense.model_dump()
+    is_added  = await add_expense(**expense_data, user_id=user.id)
+
+    if is_added:
+        return "Record added successfully"
+    else:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to add record")
 
 
 @app.patch(
@@ -56,6 +60,6 @@ async def expense_edit(
         user_id=user.id, expense_id=expense_id, expense_data=expense
     )
     if not edit_expense:
-        raise HTTPException(status_code=404, detail="expense not found")
+        raise HTTPException(status_code=404, detail="Expense not found")
 
     return edit_expense

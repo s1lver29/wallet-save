@@ -8,11 +8,13 @@ async def get_expenses(user_id: int):
         all_expenses = await expense_manager.get_expenses(user_id=user_id)
         return [ExpenseGet.from_orm(expense) for expense in all_expenses]
 
+
 async def add_expense(user_id: int, name: str, amount: float, category_id: str):
     async with async_database_session() as session:
         expense_manager = Expense(session)
-        await expense_manager.add_expense(name, amount, user_id, category_id)
-        return "Added expense"
+        is_added = await expense_manager.add_expense(name, amount, user_id, category_id)
+        return is_added
+
 
 async def update_expense(user_id: int, expense_id: int, expense_data: ExpenseUpdate):
     async with async_database_session() as session:

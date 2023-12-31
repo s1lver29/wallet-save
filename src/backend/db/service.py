@@ -3,7 +3,7 @@ from typing import AsyncGenerator
 
 from fastapi import Depends
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from sqlalchemy import delete, select
+from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .connections import async_session
@@ -30,24 +30,20 @@ class Expense:
     async def add_expense(self, name: str, amount: float, user_id: str, category_id: str):
         new_expense = Expenses(name=name, amount=amount, user_id=user_id, category_id=category_id)
         self.session.add(new_expense)
-        return new_expense
+        return True
 
     async def get_expenses(
-        self, user_id: int, category_id: list[int] | None = None, skip: int = 0, limit: int = 100
+        self, user_id: int, category_ids: list[int] | None = None, skip: int = 0, limit: int = 100
     ):
-        filters = []
-        filters.append(Expenses.user_id == user_id)
-        if category_id is not None:
-            filters.append(Expenses.category_id.in_(category_id))
-        query = select(Expenses).where(*filters).limit(limit).offset(skip)
-        expenses = await self.session.execute(query)
-        return expenses.scalars().all()
+        filters = [Expenses.user_id == user_id]
+        if category_ids is not None and len(category_ids) != 0:
+            filters.append(Expenses.category_id.in_(category_ids))
+        query = select(Expenses).where(and_(*filters)).limit(limit).offset(skip)
+        result = await self.session.execute(query)
+        return result.scalars().all()
 
     async def get_expense(self, user_id: int, expense_id: int):
-        filters = [
-            Expenses.user_id == user_id,
-            Expenses.id == expense_id
-        ]
+        filters = [Expenses.user_id == user_id, Expenses.id == expense_id]
         query = select(Expenses).where(*filters)
         expense = await self.session.execute(query)
         return expense.scalars().first()
