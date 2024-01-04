@@ -48,8 +48,8 @@ class Expense:
         expense = await self.session.execute(query)
         return expense.scalars().first()
 
-    async def delete_expense(self, id: str):
-        expense_to_delete = await self.session.get(Expenses, id)
+    async def delete_expense(self, user_id: int, expense_id: int):
+        expense_to_delete = await self.get_expense(user_id=user_id, expense_id=expense_id)
         if expense_to_delete:
             await self.session.delete(expense_to_delete)
             return True

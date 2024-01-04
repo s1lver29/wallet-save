@@ -30,3 +30,11 @@ async def update_expense(user_id: int, expense_id: int, expense_data: ExpenseUpd
             expense.category_id = expense_data.category_id
 
         return expense_data
+
+
+async def delete_expense(user_id: int, expense_id: int):
+    async with async_database_session() as session:
+        expense_manager = Expense(session)
+        expense = await expense_manager.delete_expense(user_id=user_id, expense_id=expense_id)
+
+    return expense
