@@ -26,7 +26,7 @@ const ExpensesPage = () => {
   const fetchExpenses = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://127.0.0.1:8000/dev/expenses/', {
+      const response = await axios.get('http://127.0.0.1:8000/expenses/', {
         headers: {
           'accept': 'application/json',
           'Authorization': `Bearer ${token}`
@@ -60,7 +60,7 @@ const ExpensesPage = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://127.0.0.1:8000/dev/expenses/', newExpenseData, {
+      await axios.post('http://127.0.0.1:8000/expenses/', newExpenseData, {
         headers: {
           'accept': 'application/json',
           'Authorization': `Bearer ${token}`,
@@ -96,7 +96,7 @@ const ExpensesPage = () => {
   const handleSaveEdit = async () => {
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.patch(`http://127.0.0.1:8000/dev/expenses/${editedExpenseId}`, editedExpenseData, {
+      const response = await axios.patch(`http://127.0.0.1:8000/expenses/${editedExpenseId}`, editedExpenseData, {
         headers: {
           'accept': 'application/json',
           'Authorization': `Bearer ${token}`,

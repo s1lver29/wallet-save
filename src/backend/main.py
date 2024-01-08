@@ -23,15 +23,15 @@ app.add_middleware(
 
 app.include_router(
     fastapi_users.get_auth_router(auth_backend),
-    prefix="/dev",
+    prefix="",
     tags=["auth"],
 )
 
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/dev",
+    prefix="",
     tags=["auth"],
 )
 
-app.include_router(expenses_router, prefix="/dev")
+app.include_router(expenses_router, prefix="")
 
