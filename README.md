@@ -24,7 +24,7 @@
 ```bash
 git clone https://github.com/s1lver29/wallet-save.git
 cd wallet-save/docker
-echo "BRANCH=dev" >> .env
+echo "BRANCH=main" >> .env
 echo "PORT_FRONTEND=3000" >> .env
 echo "PORT_BACKEND=8000" >> .env
 ```
