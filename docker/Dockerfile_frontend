@@ -1,0 +1,15 @@
+FROM node:21.5.0-bookworm-slim
+
+RUN apt-get update && apt-get install -y git
+
+ARG GIT_BRANCH
+RUN git clone -b $GIT_BRANCH https://github.com/s1lver29/wallet-save.git /app
+
+WORKDIR /app/src/frontend/src
+
+RUN npm install
+RUN npm run build
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
