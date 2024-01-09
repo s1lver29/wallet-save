@@ -24,7 +24,7 @@ async def async_database_session():
 
 
 class Expense:
-    def __init__(self, session: AsyncSession):
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
     async def add_expense(self, name: str, amount: float, user_id: str, category_id: str):
@@ -38,7 +38,13 @@ class Expense:
         filters = [Expenses.user_id == user_id]
         if category_ids is not None and len(category_ids) != 0:
             filters.append(Expenses.category_id.in_(category_ids))
-        query = select(Expenses).where(and_(*filters)).limit(limit).offset(skip)
+        query = (
+            select(Expenses)
+            .join(Category, Expenses.category_id == Category.id)
+            .where(and_(*filters))
+            .limit(limit)
+            .offset(skip)
+        )
         result = await self.session.execute(query)
         return result.scalars().all()
 
@@ -52,6 +58,35 @@ class Expense:
         expense_to_delete = await self.get_expense(user_id=user_id, expense_id=expense_id)
         if expense_to_delete:
             await self.session.delete(expense_to_delete)
+            return True
+        return False
+
+
+class Category:
+    def __init__(self, session: AsyncSession) -> None:
+        self.session = session
+
+    async def add_category(self, user_id: int, name: str) -> bool:
+        new_category = Category(user_id=user_id, name=name)
+        self.session.add(new_category)
+        return True
+
+    async def get_categories(self, user_id: int):
+        filters = [Category.user_id == user_id]
+        query = select(Category).where(*filters)
+        result = await self.session.execute(query)
+        return result.scalars().all()
+
+    async def get_category(self, user_id: int, category_id: int):
+        filters = [Category.user_id == user_id, Category.id == category_id]
+        query = select(Category).where(*filters)
+        category = await self.session.execute(query)
+        return category.scalars().first()
+
+    async def delete_category(self, user_id: int, category_id: int):
+        category_to_delete = await self.get_category(user_id=user_id, category_id=category_id)
+        if category_to_delete:
+            await self.session.delete(category_to_delete)
             return True
         return False
 
